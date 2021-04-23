@@ -1,9 +1,12 @@
 <template>
   <div class="login_contianer">
+    <!-- 白色的登录框 -->
     <div class="login_box">
+      <!-- 大logo -->
       <div class="profile_photo">
-        <img src="../assets/logo.png" alt="头像">
+        <img src="../assets/logo.png" alt="logo">
       </div>
+      <!-- 用户名密码输入框 -->
       <div class="login_input">
         <el-form label-width="0px" :model="loginForm" :rules="loginFormRules" ref="loginFormRef">
           <el-form-item prop="username">
@@ -13,9 +16,10 @@
             <el-input v-model="loginForm.password" prefix-icon="el-icon-lock" placeholder="请输入密码" type="password"></el-input>
           </el-form-item>
         </el-form>
+        <!-- 登录按钮重置按钮 -->
         <el-row class="login_btns">
           <el-button type="primary" :plain="true" @click="login">登录</el-button>
-          <el-button type="info" @click="loginFormReset">重置</el-button>
+          <el-button type="info" :plain="true" @click="loginFormReset">重置</el-button>
         </el-row>
       </div>
     </div>
@@ -26,15 +30,19 @@
 export default {
   data () {
     return {
+      // 登录框中的信息
       loginForm: {
         username: 'admin',
         password: '123456'
       },
+      // 配置输入框格式校验规则
       loginFormRules: {
+        // 用户名输入框
         username: [
           { required: true, message: '请输入用户名', trigger: 'blur' },
           { min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
         ],
+        // 密码输入框
         password: [
           { required: true, message: '请输入密码', trigger: 'blur' },
           { min: 6, max: 15, message: '长度在 6 到 15 个字符', trigger: 'blur' }
@@ -43,23 +51,32 @@ export default {
     }
   },
   methods: {
+    // 重置按钮功能
     loginFormReset () {
       this.$refs.loginFormRef.resetFields()
     },
+    // 登录按钮功能
     login () {
+      // 1.进行格式校验
       this.$refs.loginFormRef.validate(async valid => {
         // console.log(valid)
         if (!valid) return false
+        // 2.向后台发送登录信息 进行用户名和密码校验
         const { data: res } = await this.$http.post('login', this.loginForm)
         // console.log(res)
+        // 根据后台返回的数据判断校验结果
+        // 2.1校验结果失败
         if (res.meta.status !== 200) {
           // alert('登陆失败，该用户名不存在！')
           this.$message.error('登陆失败，该用户名不存在！')
         } else {
+          // 2.2校验结果成功
           // alert('登录成功！')
           this.$message.success('登录成功！')
           // console.log(res)
+          // 把后台返回的token信息保存到本地
           window.sessionStorage.setItem('token', res.data.token)
+          // 页面跳转
           this.$router.push('home')
         }
       })
