@@ -18,7 +18,7 @@
         </el-col>
         <!-- 添加按钮 -->
         <el-col :span="6">
-          <el-button type="primary">添加用户</el-button>
+          <el-button type="primary" @click="dialogVisible = true">添加用户</el-button>
         </el-col>
       </el-row>
       <!-- 展示用户信息的表格 -->
@@ -60,12 +60,49 @@
         :total="total">
       </el-pagination>
     </el-card>
+    <!-- 添加用户 -->
+    <el-dialog title="添加用户" :visible.sync="dialogVisible" width="750px" @close="closeNewUserForm">
+      <!-- 添加用户信息输入框 -->
+      <el-form :model="newUserForm" :rules="newUserRules" ref="newUserFormRef" label-width="100px">
+        <el-form-item label="用户名：" prop="username">
+          <el-input v-model="newUserForm.username"></el-input>
+        </el-form-item>
+        <el-form-item label="密码：" prop="password">
+          <el-input v-model="newUserForm.password"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱：" prop="email">
+          <el-input v-model="newUserForm.email"></el-input>
+        </el-form-item>
+        <el-form-item label="手机：" prop="mobile">
+          <el-input v-model="newUserForm.mobile"></el-input>
+        </el-form-item>
+      </el-form>
+      <!-- 功能按钮 -->
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addUser">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 export default {
   data () {
+    const checkEmail = function (rule, value, callback) {
+      const regEmail = /\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/
+      if (regEmail.test(value)) {
+        return callback()
+      }
+      callback(new Error('请输入正确的邮箱'))
+    }
+    const checkPhone = (rule, value, callback) => {
+      const regPhone = /^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/
+      if (regPhone.test(value)) {
+        return callback()
+      }
+      callback(new Error('请输入正确的手机号码'))
+    }
     return {
       // 请求参数（多个参数封装成对象形式）
       params: {
@@ -77,7 +114,38 @@ export default {
       },
       // 用户列表信息数组
       usersList: [],
-      total: 0
+      total: 0,
+      dialogVisible: false,
+      // 添加用户输入框信息
+      newUserForm: {
+        username: '',
+        password: '',
+        email: '',
+        mobile: ''
+      },
+      newUserRules: {
+        // 用户名输入框
+        username: [
+          { required: true, message: '请输入用户名', trigger: 'blur' },
+          { min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
+        ],
+        // 密码输入框
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          { min: 6, max: 15, message: '长度在 6 到 15 个字符', trigger: 'blur' }
+        ],
+        // 邮箱输入框
+        email: [
+          { required: true, message: '请输入邮箱', trigger: 'blur' },
+          // { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
+          { validator: checkEmail, trigger: 'blur' }
+        ],
+        // 手机输入框
+        mobile: [
+          { required: true, message: '请输入手机', trigger: 'blur' },
+          { validator: checkPhone, trigger: 'blur' }
+        ]
+      }
     }
   },
   created () {
@@ -118,11 +186,31 @@ export default {
         return this.$message.error('更新用户状态失败！')
       }
       this.$message.success('更新用户状态成功！')
+    },
+    closeNewUserForm () {
+      this.$refs.newUserFormRef.resetFields()
+    },
+    addUser () {
+      this.$refs.newUserFormRef.validate(async valid => {
+        // console.log(valid)
+        if (!valid) return false
+        const { data: res } = await this.$http.post('users', this.newUserForm)
+        if (res.meta.status !== 201) {
+          return this.$message.error('添加用户失败！')
+        } else {
+          this.$message.success('添加用户成功！')
+          this.dialogVisible = false
+          this.getUsersList()
+        }
+      })
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-
+.el-form{
+  margin: auto;
+  padding-right: 35px;
+}
 </style>
