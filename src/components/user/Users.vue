@@ -253,13 +253,16 @@ export default {
           email: this.editUserForm.email,
           mobile: this.editUserForm.mobile
         })
-        if (res.meta.status !== 200) return this.$message.error('修改用户信息失败!')
-        // 1.关闭对话框
-        this.editDialogVisible = false
-        // 2.修改用户列表
-        this.getUsersList()
-        // 3.提示成功信息
-        this.$message.success('修改用户信息成功!')
+        if (res.meta.status !== 200) {
+          return this.$message.error('修改用户信息失败!')
+        } else {
+          // 1.关闭对话框
+          this.editDialogVisible = false
+          // 2.修改用户列表
+          this.getUsersList()
+          // 3.提示成功信息
+          this.$message.success('修改用户信息成功!')
+        }
       })
     },
     async removeUserById (id) {
@@ -284,8 +287,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.el-form{
-  margin: auto;
-  padding-right: 20px;
-}
+
 </style>
