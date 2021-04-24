@@ -49,7 +49,7 @@
           <template v-slot:default="slotProps">
             <el-button type="primary" icon="el-icon-edit" size="medium" @click="editRolesMsg(slotProps.row.id)">编辑</el-button>
             <el-button type="danger" icon="el-icon-delete" size="medium" @click="deleteRolesMsg(slotProps.row.id)">删除</el-button>
-            <el-button type="warning" icon="el-icon-setting" size="medium">分配权限</el-button>
+            <el-button type="warning" icon="el-icon-setting" size="medium" @click="openRolesRightsSettings(slotProps.row)">分配权限</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -88,6 +88,15 @@
         <el-button type="primary" @click="editRoles">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 设置角色权限对话框 -->
+    <el-dialog title="设置权限" :visible.sync="setRolesRightsVisible" width="750px" @close="closeSetRolesRightsForm">
+      <!-- 树形控件 -->
+      <el-tree :data="rightsList" :props="rightsProps" show-checkbox default-expand-all node-key="id" :default-checked-keys="defCheckedKeys" ref="treeRef"></el-tree>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="setRolesRightsVisible = false">取 消</el-button>
+        <el-button type="primary" @click="setRolesRights">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -120,7 +129,15 @@ export default {
           { required: true, message: '请输入角色描述', trigger: 'blur' }
         ]
       },
-      editRolesVisible: false
+      editRolesVisible: false,
+      setRolesRightsVisible: false,
+      rightsList: [],
+      rightsProps: {
+        children: 'children',
+        label: 'authName'
+      },
+      defCheckedKeys: [],
+      roleId: ''
     }
   },
   created () {
@@ -214,6 +231,43 @@ export default {
         // console.log(res.data)
         // 重新赋值权限信息
         role.children = res.data
+      }
+    },
+    async openRolesRightsSettings (role) {
+      this.roleId = role.id
+      // 把树的叶子结点的id值push到数组中
+      this.getDefCheckedKeys(role, this.defCheckedKeys)
+      this.setRolesRightsVisible = true
+      const { data: res } = await this.$http.get('rights/tree')
+      this.rightsList = res.data
+      // console.log(this.rightsList)
+    },
+    // 把树的叶子结点的id值push到数组中
+    getDefCheckedKeys (node, arr) {
+      // 是叶子结点
+      if (!node.children) {
+        return arr.push(node.id)
+      }
+      // 不是叶子结点
+      node.children.forEach(item => {
+        this.getDefCheckedKeys(item, arr)
+      })
+    },
+    closeSetRolesRightsForm () {
+      this.defCheckedKeys = []
+    },
+    async setRolesRights () {
+      const checkedKeys = this.$refs.treeRef.getCheckedKeys()
+      const halfCheckedKeys = this.$refs.treeRef.getHalfCheckedKeys()
+      const keyArr = [...checkedKeys, ...halfCheckedKeys]
+      // console.log(keyArr.join(','))
+      const { data: res } = await this.$http.post(`roles/${this.roleId}/rights`, { rids: keyArr.join(',') })
+      if (res.meta.status !== 200) {
+        return this.$message.error('设置权限失败！')
+      } else {
+        this.setRolesRightsVisible = false
+        this.$message.success('设置权限成功！')
+        this.getRolesList()
       }
     }
   }
