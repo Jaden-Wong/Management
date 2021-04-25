@@ -54,7 +54,7 @@
             v-model="selectParentCate"
             :options="parentCateList"
             :props="selectParentCateProps"
-            @change="selectParentCateChange" clearable :collapse-tags="true">
+            @change="selectParentCateChange" clearable>
           </el-cascader>
         </el-form-item>
       </el-form>
@@ -222,7 +222,7 @@ export default {
       })
     },
     async editCateMsg (id) {
-      console.log(id)
+      // console.log(id)
       const { data: res } = await this.$http.get(`categories/${id}`)
       if (res.meta.status !== 200) {
         return this.$message.error('获取分类名称失败！')
