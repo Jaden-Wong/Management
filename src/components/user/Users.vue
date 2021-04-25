@@ -55,7 +55,7 @@
         @current-change="handleCurrentChange"
         :current-page="params.pagenum"
         :page-sizes="[1, 2, 5, 10]"
-        :page-size="2"
+        :page-size="params.pagesize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="total">
       </el-pagination>
@@ -166,7 +166,7 @@ export default {
         // 用户名输入框
         username: [
           { required: true, message: '请输入用户名', trigger: 'blur' },
-          { min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
+          { min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur' }
         ],
         // 密码输入框
         password: [

@@ -47,9 +47,9 @@
         <el-table-column prop="roleDesc" label="角色描述"></el-table-column>
         <el-table-column label="操作" width="360px">
           <template v-slot:default="slotProps">
-            <el-button type="primary" icon="el-icon-edit" size="medium" @click="editRolesMsg(slotProps.row.id)">编辑</el-button>
-            <el-button type="danger" icon="el-icon-delete" size="medium" @click="deleteRolesMsg(slotProps.row.id)">删除</el-button>
-            <el-button type="warning" icon="el-icon-setting" size="medium" @click="openRolesRightsSettings(slotProps.row)">分配权限</el-button>
+            <el-button type="primary" icon="el-icon-edit" size="mini" @click="editRolesMsg(slotProps.row.id)">编辑</el-button>
+            <el-button type="danger" icon="el-icon-delete" size="mini" @click="deleteRolesMsg(slotProps.row.id)">删除</el-button>
+            <el-button type="warning" icon="el-icon-setting" size="mini" @click="openRolesRightsSettings(slotProps.row)">分配权限</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -172,6 +172,9 @@ export default {
     async editRolesMsg (id) {
       // console.log(id)
       const { data: res } = await this.$http.get(`roles/${id}`)
+      if (res.meta.status !== 200) {
+        return this.$message.error('获取角色信息失败！')
+      }
       this.editRolesForm = res.data
       this.editRolesVisible = true
     },
@@ -185,12 +188,12 @@ export default {
           roleName: this.editRolesForm.roleName,
           roleDesc: this.editRolesForm.roleDesc
         })
-        console.log(res)
+        // console.log(res)
         if (res.meta.status !== 200) {
           return this.$message.error('编辑角色信息失败！')
         } else {
-          this.$message.success('编辑角色信息成功！')
           this.editRolesVisible = false
+          this.$message.success('编辑角色信息成功！')
           this.getRolesList()
         }
       })

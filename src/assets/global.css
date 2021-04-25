@@ -27,3 +27,7 @@ body,
   margin: auto;
   padding-right: 20px;
 }
+
+.el-scrollbar__wrap {
+  height: 300px !important; 
+}
