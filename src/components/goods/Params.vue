@@ -6,12 +6,15 @@
       <el-breadcrumb-item>商品管理</el-breadcrumb-item>
       <el-breadcrumb-item>分类参数</el-breadcrumb-item>
     </el-breadcrumb>
+
     <!-- 卡片 -->
     <el-card class="box-card">
+      <!-- 顶部警示条 -->
       <el-alert title="注意：只允许为第三级分类设置相关参数" type="warning" show-icon></el-alert>
       <el-row class="selectBox">
         <el-col>
           选择商品分类：
+          <!-- 级联选择器 -->
           <el-cascader
             v-model="selectCateList"
             :options="cateList"
@@ -20,30 +23,89 @@
           </el-cascader>
         </el-col>
       </el-row>
+
       <el-tabs v-model="activeName" @tab-click="handleTabClick">
+
+        <!-- 一.动态参数对应的展示区域 -->
         <el-tab-pane label="动态参数" name="many">
+          <!-- 添加参数按钮 -->
           <el-button type="primary" size="medium" :disabled="selectCateList.length !== 3 ? true : false" @click="addDialogVisible = true">添加参数</el-button>
+          <!-- 动态参数表格 -->
           <el-table :data="manyTableData" border style="width: 100%">
-            <el-table-column type="expand"></el-table-column>
+            <!-- 动态参数展开列 -->
+            <el-table-column type="expand">
+              <template v-slot="slotProps">
+                <el-tag v-for="(item, i) in slotProps.row.attr_vals" :key="i" closable @close="closeButton(i, slotProps.row)">{{item}}</el-tag>
+
+                <!-- 展开列下 添加新标签 按钮/输入框两位一体 -->
+                <!-- 1.输入框 -->
+                <el-input
+                  class="input-new-tag"
+                  v-if="slotProps.row.inputVisible"
+                  v-model="slotProps.row.inputValue"
+                  ref="saveTagInput"
+                  size="small"
+                  @keyup.enter.native="handleInputConfirm(slotProps.row)"
+                  @blur="handleInputConfirm(slotProps.row)">
+                </el-input>
+                <!-- 2.按钮 -->
+                <el-button v-else class="button-new-tag" size="small" @click="showInput(slotProps.row)">+ New Tag</el-button>
+              </template>
+            </el-table-column>
+
+            <!-- 索引号列 -->
             <el-table-column type="index" label="#"></el-table-column>
+            <!-- 参数名称列 -->
             <el-table-column prop="attr_name" label="参数名称"></el-table-column>
+            <!-- 相关操作列 -->
             <el-table-column label="操作">
               <template v-slot="slotProps">
+                <!-- 编辑操作按钮 -->
                 <el-button type="primary" icon="el-icon-edit" size="mini" @click="openEditDialog(slotProps.row.attr_id)">编辑</el-button>
+                <!-- 删除操作按钮 -->
                 <el-button type="danger" icon="el-icon-delete" size="mini" @click="openDeleteDialog(slotProps.row.attr_id)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
         </el-tab-pane>
+
+        <!-- 二.静态属性对应的展示区域 -->
         <el-tab-pane label="静态属性" name="only">
+          <!-- 添加属性按钮 -->
           <el-button type="primary" size="medium" :disabled="selectCateList.length !== 3 ? true : false" @click="addDialogVisible = true">添加属性</el-button>
+          <!-- 静态属性表格 -->
           <el-table :data="onlyTableData" border style="width: 100%">
-            <el-table-column type="expand"></el-table-column>
+            <!-- 静态属性展开列 -->
+            <el-table-column type="expand">
+              <template v-slot="slotProps">
+                <el-tag v-for="(item, i) in slotProps.row.attr_vals" :key="i" closable  @close="closeButton(i, slotProps.row)">{{item}}</el-tag>
+
+                <!-- 展开列下 添加新标签 按钮/输入框两位一体 -->
+                <!-- 1.输入框 -->
+                <el-input
+                  class="input-new-tag"
+                  v-if="slotProps.row.inputVisible"
+                  v-model="slotProps.row.inputValue"
+                  ref="saveTagInput"
+                  size="small"
+                  @keyup.enter.native="handleInputConfirm(slotProps.row)"
+                  @blur="handleInputConfirm(slotProps.row)">
+                </el-input>
+                <!-- 2.按钮 -->
+                <el-button v-else class="button-new-tag" size="small" @click="showInput(slotProps.row)">+ New Tag</el-button>
+              </template>
+            </el-table-column>
+
+            <!-- 索引号列 -->
             <el-table-column type="index" label="#"></el-table-column>
+            <!-- 属性名称列 -->
             <el-table-column prop="attr_name" label="属性名称"></el-table-column>
+            <!-- 相关操作列 -->
             <el-table-column label="操作">
               <template v-slot="slotProps">
+                <!-- 编辑操作按钮 -->
                 <el-button type="primary" icon="el-icon-edit" size="mini" @click="openEditDialog(slotProps.row.attr_id)">编辑</el-button>
+                <!-- 删除操作按钮 -->
                 <el-button type="danger" icon="el-icon-delete" size="mini" @click="openDeleteDialog(slotProps.row.attr_id)">删除</el-button>
               </template>
             </el-table-column>
@@ -51,6 +113,8 @@
         </el-tab-pane>
       </el-tabs>
     </el-card>
+
+    <!-- 对话框 -->
     <!-- 添加 动态参数 / 静态属性 对话框 -->
     <el-dialog :title="'编辑' + tileOfDialog" :visible.sync="addDialogVisible" width="750px" @close="closeAddDialog">
       <el-form :model="addForm" :rules="addRules" ref="addRuleFormRef" label-width="100px">
@@ -63,6 +127,7 @@
         <el-button type="primary" @click="addParams">确 定</el-button>
       </span>
     </el-dialog>
+
     <!-- 编辑 动态参数 / 静态属性 对话框 -->
     <el-dialog :title="'编辑' + tileOfDialog" :visible.sync="editDialogVisible" width="750px" @close="closeEditDialog">
       <el-form :model="editForm" :rules="editRules" ref="editRuleFormRef" label-width="100px">
@@ -89,7 +154,6 @@ export default {
         value: 'cat_id',
         label: 'cat_name',
         children: 'children'
-        // checkStrictly: true
       },
       activeName: 'many',
       manyTableData: [],
@@ -129,7 +193,9 @@ export default {
     // 获取分类参数列表
     async getParamsData () {
       if (!this.cateId) {
-        // this.selectCateList = []
+        this.selectCateList = []
+        this.manyTableData = []
+        this.onlyTableData = []
         return false
       }
       const { data: res } = await this.$http.get(`categories/${this.cateId}/attributes`, {
@@ -140,6 +206,11 @@ export default {
       if (res.meta.status !== 200) {
         return this.$message.error('获取动态参数/静态属性失败！')
       }
+      res.data.forEach(item => {
+        item.attr_vals = item.attr_vals ? item.attr_vals.split(' ') : []
+        item.inputVisible = false
+        item.inputValue = ''
+      })
       // console.log(res.data)
       if (this.activeName === 'many') {
         this.manyTableData = res.data
@@ -231,6 +302,43 @@ export default {
         this.$message.success('删除参数成功！')
         this.getParamsData()
       }
+    },
+    showInput (row) {
+      // console.log(row)
+      row.inputVisible = true
+      // 页面上的元素被重新渲染时,调用$nextTick中的回调函数
+      this.$nextTick(_ => {
+        this.$refs.saveTagInput.$refs.input.focus()
+      })
+    },
+    // 把参数的属性值字符串保存到数据库中
+    async saveAttr_vals (row) {
+      const { data: res } = await this.$http.put(`categories/${this.cateId}/attributes/${row.attr_id}`, {
+        attr_name: row.attr_name,
+        attr_sel: this.activeName,
+        attr_vals: row.attr_vals.join(' ')
+      })
+      if (res.meta.status !== 200) {
+        return this.$message.error('修改参数失败！')
+      } else {
+        this.$message.success('修改参数成功！')
+      }
+    },
+    async handleInputConfirm (row) {
+      if (row.inputValue.trim().length === 0) {
+        row.inputValue = ''
+        row.inputVisible = false
+        return false
+      }
+      row.attr_vals.push(row.inputValue.trim())
+      row.inputValue = ''
+      row.inputVisible = false
+      this.saveAttr_vals(row)
+    },
+    closeButton (i, row) {
+      // console.log(i)
+      row.attr_vals.splice(i, 1)
+      this.saveAttr_vals(row)
     }
   },
   computed: {
@@ -247,5 +355,13 @@ export default {
 <style lang="scss" scoped>
 .selectBox{
   margin: 15px 0;
+}
+
+.el-tag{
+  margin: 15px;
+}
+
+.input-new-tag{
+  width: 125px;
 }
 </style>
