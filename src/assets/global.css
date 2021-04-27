@@ -47,3 +47,12 @@ body,
 .addGoods{
   margin-top: 15px;
 }
+
+.el-select-dropdown{
+  height: 150px !important;
+}
+
+.el-dialog__body{
+  max-height: 350px;
+  overflow:auto;
+}

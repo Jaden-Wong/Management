@@ -26,7 +26,7 @@
         <el-table-column prop="goods_weight" label="商品重量" width="85px"></el-table-column>
         <el-table-column prop="add_time" label="创建时间" width="165px">
           <template v-slot="slotProps">
-            {{slotProps.row.add_time | formatDate}}
+            {{slotProps.row.add_time *1000 | formatDate}}
           </template>
         </el-table-column>
         <el-table-column label="操作" width="165px">
@@ -40,7 +40,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="params.pagenum"
-        :page-sizes="[10, 20, 50, 100,200,300,500]"
+        :page-sizes="[10, 50, 100, 200]"
         :page-size="params.pagesize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="total" background>
