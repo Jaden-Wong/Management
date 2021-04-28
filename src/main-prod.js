@@ -15,7 +15,9 @@ import Nprogress from 'nprogress'
 import 'nprogress/nprogress.css'
 
 // 配置axios
-axios.defaults.baseURL = 'http://127.0.0.1:8888/api/private/v1/'
+// axios.defaults.baseURL = 'http://127.0.0.1:3000/api/private/v1/'
+// axios.defaults.baseURL = 'http://42.193.174.204/:3000/api/private/v1/'
+axios.defaults.baseURL = 'http://timemeetyou.com:8889/api/private/v1/'
 axios.interceptors.request.use(config => {
   Nprogress.start()
   // 按照接口文档要求在headers下添加一个Authorization属性
