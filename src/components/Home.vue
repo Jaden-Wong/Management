@@ -15,7 +15,7 @@
         <span class="home-title">电商后台管理系统</span>
       </div>
       <!-- 退出登录按钮 -->
-      <el-button type="info" :plain="true" @click="logout">退出登录</el-button>
+      <el-button class="log_out_btn" type="info" @click="logout">退出登录</el-button>
     </el-header>
     <!-- 侧边导航栏 -->
     <el-container>
@@ -171,5 +171,9 @@ export default {
   color: #fff;
   letter-spacing: 1.5px;
   cursor: pointer;
+}
+
+.log_out_btn{
+  margin-right: 30px;
 }
 </style>

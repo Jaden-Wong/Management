@@ -32,8 +32,8 @@ export default {
     return {
       // 登录框中的信息
       loginForm: {
-        username: 'admin',
-        password: '123456'
+        username: '',
+        password: ''
       },
       // 配置输入框格式校验规则
       loginFormRules: {
